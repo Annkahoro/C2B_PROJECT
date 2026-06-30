@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C2B PathFinder Pitch Presentation</title>
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Styling Variable System */
+    :root {
+      --color-purple: #5e35b1;
+      --color-purple-light: #7e57c2;
+      --color-purple-dark: #311b92;
+      --color-teal: #00897b;
+      --color-teal-light: #26a69a;
+      --color-bg-light: #f5f5f7;
+      --color-white: #ffffff;
+      --color-slate: #212529;
+      --color-muted: #6c757d;
+      --transition-speed: 0.5s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f0f12;
+      color: var(--color-slate);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Presentation Frame */
+    .deck-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Slide Setup */
+    .slide {
+      position: absolute;
+      width: 1333px;
+      height: 750px;
+      background-color: var(--color-bg-light);
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      padding: 50px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95) translateY(20px);
+      transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 25px;
+    }
+
+    .slide-category {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--color-teal);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .slide-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--color-purple);
+      line-height: 1.2;
+    }
+
+    /* Slide Body Content Layouts */
+    .slide-body {
+      flex-grow: 1;
+      position: relative;
+      display: flex;
+      gap: 30px;
+      align-items: stretch;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      padding-top: 15px;
+      font-size: 12px;
+      color: var(--color-muted);
+    }
+
+    .slide-footer-right {
+      font-weight: 600;
+    }
+
+    /* Specific Slide Configurations */
+    /* Slide 1 & 7: Dark Purple Hero Theme */
+    .slide.dark-theme {
+      background-color: var(--color-purple-dark);
+      background-image: radial-gradient(circle at 80% 20%, var(--color-purple-light) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 80%, var(--color-purple) 0%, transparent 60%);
+      color: var(--color-white);
+      justify-content: center;
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    .slide.dark-theme .slide-title {
+      color: var(--color-white);
+      font-size: 58px;
+      margin-bottom: 15px;
+    }
+
+    .slide.dark-theme .slide-subtitle {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--color-teal-light);
+      margin-bottom: 30px;
+    }
+
+    .slide.dark-theme .slide-description {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 800px;
+    }
+
+    .slide.dark-theme .slide-footer {
+      border-top-color: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Card Components */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      width: 100%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      width: 100%;
+    }
+
+    .card {
+      background-color: var(--color-white);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--color-teal-light);
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-purple-dark);
+      margin-bottom: 5px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-teal);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .card-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #495057;
+    }
+
+    .bullet-list {
+      list-style-type: none;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 15px;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #343a40;
+    }
+
+    .bullet-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--color-teal-light);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /* Interactive Navigation Controls */
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .control-btn {
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--color-white);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .control-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    .control-btn:focus {
+      outline: none;
+    }
+
+    .slide-indicators {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: background-color 0.3s, width 0.3s;
+    }
+
+    .indicator.active {
+      background-color: var(--color-white);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* Print styling rules (creates a perfect 16:9 Multi-page PDF) */
+    @media print {
+      body {
+        background-color: white;
+        overflow: visible;
+        height: auto;
+        width: auto;
+      }
+      .controls, .slide-indicators {
+        display: none !important;
+      }
+      .deck-container {
+        display: block;
+        height: auto;
+        width: auto;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        display: flex !important;
+        page-break-after: always !important;
+        width: 100% !important;
+        height: 100vh !important; /* Forces 100% viewport print height */
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 40px 60px !important;
+      }
+      .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    
+    <!-- SLIDE 1: Title Slide -->
+    <div class="slide dark-theme active" id="slide-1">
+      <div>
+        <h1 class="slide-title">C2B PathFinder</h1>
+        <div class="slide-subtitle">AI-Powered Learning Path Recommendation Platform</div>
+        <p class="slide-description">
+          An intelligent demo system built for Campus2Business (C2B) to integrate the Learning Passport, 
+          Skills Gap Diagnostic, and Feedback Loop Engine into one unified platform.
+        </p>
+      </div>
+      <div class="slide-footer">
+        <div>BGT 4th Edition • Pitch Presentation</div>
+        <div class="slide-footer-right">1 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Team -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <span class="slide-category">Team Expertise</span>
+        <h2 class="slide-title">The Team Behind the Idea</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          
+          <div class="card">
+            <div class="card-num">01</div>
+            <h3 class="card-title">Lead AI Engineer</h3>
+            <span class="card-subtitle">Algorithms & Models</span>
+            <ul class="bullet-list">
+              <li>Machine Learning & recommendation architectures.</li>
+              <li>Explainable AI (XAI) models.</li>
+              <li>Data modeling for historical learning pathways.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-num">02</div>
+            <h3 class="card-title">Full-Stack Developer</h3>
+            <span class="card-subtitle">Platform Engineering</span>
+            <ul class="bullet-list">
+              <li>Vite, React 18, and modern state management.</li>
+              <li>Sleek Tailwind styling & dashboard layouts.</li>
+              <li>Production bundling & deployment pipelines.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-num">03</div>
+            <h3 class="card-title">Product & UX Architect</h3>
+            <span class="card-subtitle">Strategic Design</span>
+            <ul class="bullet-list">
+              <li>Interactive department skill gap heatmaps.</li>
+              <li>Feedback Loop workflow design.</li>
+              <li>B2B user journeys and platform analytics.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>C2B PathFinder • Pitch Deck</div>
+        <div class="slide-footer-right">2 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Opportunity -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <span class="slide-category">The Market Opportunity</span>
+        <h2 class="slide-title">The Corporate Upskilling Challenge</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          
+          <div class="card">
+            <h3 class="card-title" style="color: var(--color-purple); margin-bottom: 20px;">The Problem</h3>
+            <ul class="bullet-list">
+              <li><strong>Outdated Diagnostics:</strong> Employee skills matrices are gathered via static annual surveys, which are immediately obsolete.</li>
+              <li><strong>Generic Pathways:</strong> Learning catalogs recommend generic courses rather than customized, step-by-step role progressions.</li>
+              <li><strong>Wasted L&D Budget:</strong> Enterprise admins lack real-time visibility into exact department-level deficiencies.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title" style="color: var(--color-teal); margin-bottom: 20px;">The Opportunity</h3>
+            <ul class="bullet-list">
+              <li><strong>Dynamic Real-Time Mapping:</strong> Predicting the "Next Best Course" automatically based on historical career shifts.</li>
+              <li><strong>Explainable Recommendations:</strong> Showing learners exactly <i>why</i> a course was recommended (e.g. "acquiures 2 target skills").</li>
+              <li><strong>Aggregated Diagnostics:</strong> Translating individual growth data directly into company-wide heatmaps and roadmaps.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>C2B PathFinder • Pitch Deck</div>
+        <div class="slide-footer-right">3 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Solution -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <span class="slide-category">Platform Architecture</span>
+        <h2 class="slide-title">The Three Conceptual Pillars</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          
+          <div class="card">
+            <div class="card-num" style="color: var(--color-purple);">01</div>
+            <h3 class="card-title">Learning Passport</h3>
+            <span class="card-subtitle">Learner Dashboard</span>
+            <p class="card-body">
+              An active record of acquired skills, completed courses, and progress toward a target career role. 
+              Features a visual progression path showing recommended steps to bridge gaps.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-num" style="color: var(--color-teal);">02</div>
+            <h3 class="card-title">Skills Gap Diagnostic</h3>
+            <span class="card-subtitle">Company Dashboard</span>
+            <p class="card-body">
+              Transforms individual records into a department-wide skills heatmap. Spots critical gaps instantly 
+              and generates a phased company training roadmap adjusted for budget and timeline.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-num" style="color: var(--color-purple-light);">03</div>
+            <h3 class="card-title">Feedback Loop</h3>
+            <span class="card-subtitle">Admin Dashboard</span>
+            <p class="card-body">
+              Monitors post-course impact scores and job-application success rates. This feedback automatically 
+              refines and feeds back into the AI recommendation engine to improve recommendations.
+            </p>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>C2B PathFinder • Pitch Deck</div>
+        <div class="slide-footer-right">4 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Market Fit & Differentiation -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <span class="slide-category">Value Proposition</span>
+        <h2 class="slide-title">Differentiation & Core Value</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          
+          <div class="card">
+            <h3 class="card-title" style="color: var(--color-purple); margin-bottom: 20px;">Why We Differentiate</h3>
+            <ul class="bullet-list">
+              <li><strong>Explainable AI (XAI):</strong> Transparent metrics showing the alignment score and rationale for every recommended path.</li>
+              <li><strong>Closed-Loop Learning:</strong> The platform is self-correcting. Admin feeds back course reviews, optimizing the pathfinder models.</li>
+              <li><strong>Multi-Scale Architecture:</strong> Scalable dashboards that bridge employee upskilling with company strategy seamlessly.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title" style="color: var(--color-teal); margin-bottom: 20px;">Ideal Market Fit</h3>
+            <ul class="bullet-list">
+              <li><strong>Academic/B2B Synergy:</strong> Connects vocational training institutes directly with their commercial enterprise partners.</li>
+              <li><strong>Employee Retention:</strong> Providing explicit, transparent career growth roadmaps boosts course completion by 30%.</li>
+              <li><strong>L&D Efficiency:</strong> Empowers corporate L&D administrators to spend budgets only on critical gaps shown by the heatmap.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>C2B PathFinder • Pitch Deck</div>
+        <div class="slide-footer-right">5 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Business Model -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <span class="slide-category">Sustainability Plan</span>
+        <h2 class="slide-title">The Business Model</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          
+          <div class="card">
+            <div class="card-num">01</div>
+            <h3 class="card-title">B2B SaaS License</h3>
+            <span class="card-subtitle">Recurring Subscription</span>
+            <p class="card-body">
+              Charged to enterprise clients based on employee count. Unlocks full department heatmaps, training roadmaps, 
+              custom transformation goals, and performance analytics.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-num">02</div>
+            <h3 class="card-title">Catalogue Commission</h3>
+            <span class="card-subtitle">Transaction Fees</span>
+            <p class="card-body">
+              Revenue-share model with educational providers and universities. PathFinder takes a transaction commission for 
+              every course enrollment booked through the catalog.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-num">03</div>
+            <h3 class="card-title">Enterprise Add-ons</h3>
+            <span class="card-subtitle">Custom Integrations</span>
+            <p class="card-body">
+              High-margin service fee for custom integrations with existing enterprise HR software (LMS/HRM) and fine-tuning 
+              the AI model on corporate-specific competency frames.
+            </p>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>C2B PathFinder • Pitch Deck</div>
+        <div class="slide-footer-right">6 / 7</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Final Request -->
+    <div class="slide dark-theme" id="slide-7">
+      <div>
+        <h1 class="slide-title" style="font-size: 46px;">Partner with C2B PathFinder</h1>
+        <div class="slide-subtitle">Let's build the future of dynamic skills diagnostics.</div>
+        
+        <div style="margin-top: 40px;">
+          <h3 style="color: var(--color-teal-light); font-size: 18px; margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">OUR REQUEST:</h3>
+          <ul class="bullet-list" style="color: rgba(255,255,255,0.9);">
+            <li style="color: rgba(255,255,255,0.9); margin-bottom: 12px; font-size: 16px;">We are seeking <strong>Corporate & Training Pilot Partners</strong> to deploy the C2B PathFinder platform with active cohorts.</li>
+            <li style="color: rgba(255,255,255,0.9); margin-bottom: 12px; font-size: 16px;">Seeking advisory partnerships with L&D leaders to optimize our model's taxonomy matching.</li>
+            <li style="color: rgba(255,255,255,0.9); margin-bottom: 12px; font-size: 16px;">Explore and inspect our platform repository: <strong>https://github.com/Annkahoro/C2B_PROJECT</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>BGT 4th Edition • Pitch Presentation</div>
+        <div class="slide-footer-right">7 / 7</div>
+      </div>
+    </div>
+
+    <!-- Presentation Control Buttons -->
+    <div class="controls">
+      <button class="control-btn" id="prev-btn" onclick="prevSlide()">&#8592;</button>
+      <button class="control-btn" id="next-btn" onclick="nextSlide()">&#8594;</button>
+    </div>
+
+    <!-- Indicators -->
+    <div class="slide-indicators" id="slide-indicators"></div>
+
+  </div>
+
+  <script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const indicatorsContainer = document.getElementById('slide-indicators');
+
+    // Create slide indicators dynamically
+    slides.forEach((slide, idx) => {
+      const ind = document.createElement('div');
+      ind.classList.add('indicator');
+      if (idx === 0) ind.classList.add('active');
+      ind.onclick = () => showSlide(idx);
+      indicatorsContainer.appendChild(ind);
+    });
+
+    const indicators = document.querySelectorAll('.indicator');
+
+    function showSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      
+      slides[currentSlideIndex].classList.remove('active');
+      indicators[currentSlideIndex].classList.remove('active');
+      
+      currentSlideIndex = index;
+      
+      slides[currentSlideIndex].classList.add('active');
+      indicators[currentSlideIndex].classList.add('active');
+
+      // Adjust controller colors based on slide background theme
+      const nextBtn = document.getElementById('next-btn');
+      const prevBtn = document.getElementById('prev-btn');
+      const isDarkTheme = slides[currentSlideIndex].classList.contains('dark-theme');
+      
+      if (isDarkTheme) {
+        nextBtn.style.color = '#ffffff';
+        prevBtn.style.color = '#ffffff';
+        nextBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+        prevBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+      } else {
+        nextBtn.style.color = '#212529';
+        prevBtn.style.color = '#212529';
+        nextBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+        prevBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < slides.length - 1) {
+        showSlide(currentSlideIndex + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIndex > 0) {
+        showSlide(currentSlideIndex - 1);
+      }
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Spacebar' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    // Touch support (simple swiping)
+    let touchstartX = 0;
+    let touchendX = 0;
+    
+    document.addEventListener('touchstart', e => {
+      touchstartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', e => {
+      touchendX = e.changedTouches[0].screenX;
+      handleGesture();
+    });
+
+    function handleGesture() {
+      if (touchendX < touchstartX - 50) nextSlide();
+      if (touchendX > touchstartX + 50) prevSlide();
+    }
+  </script>
+</body>
+</html>
