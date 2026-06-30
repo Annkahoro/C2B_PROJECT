@@ -97,4 +97,4 @@ C2B-PathFinder/
 
 ---
 
-*C2B PathFinder — BGT 4th Edition — Campus2Business Challenge — 2026*
+*C2B PathFinder — BGT 4th Edition — Campus2Business Challenge — 2026*.
