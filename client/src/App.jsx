@@ -10,6 +10,12 @@ export default function App() {
 
   if (!user) return <Login onLogin={setUser} />;
 
+  // Application routing and user role control.
+  // The app checks if the user is authenticated. If not, it redirects to the Login screen.
+  // Once logged in, it determines the home route based on the user's role:
+  // - student -> '/learner'
+  // - company -> '/company'
+  // - admin   -> '/admin'
   const home = user.role === 'student' ? '/learner' : user.role === 'company' ? '/company' : '/admin';
 
   return (
