@@ -34,8 +34,10 @@ export default function LearnerDashboard({ user, onLogout, onUpdateUser }) {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xs">C2B</span></div>
-            <span className="font-bold text-gray-900">PathFinder</span>
+            <div onClick={onLogout} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xs">C2B</span></div>
+              <span className="font-bold text-gray-900">PathFinder</span>
+            </div>
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Learner</span>
           </div>
           <div className="flex items-center gap-4">
